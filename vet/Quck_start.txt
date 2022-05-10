@@ -1,0 +1,41 @@
+# Quick start
+1. Clone the policy library
+   - https://github.com/GoogleCloudPlatform/policy-library
+2. Copy the sample IAM domain restriction constraint into the policies/constraints directory
+   - cp samples/iam_service_accounts_only.yaml policies/constraints
+3. Examine the constraint you copied by priting it to the terminal
+   - cat policies/constraints/iam_service_accounts_only.yaml
+   - Notice gserviceaccount.com at the bottom. This specifies that only members from the gserviceaccount.com domain can be present in an IAM policy.
+4. To verify that the policy works as expected, create the following Terraform main.tf file in the current directory. You can use nano, vim, or the Cloud Shell Editor to create policy-library/main.tf
+    terraform {
+    required_providers {
+        google = {
+        source = "hashicorp/google"
+        version = "~> 3.84"
+        }
+    }
+    }
+
+    resource "google_project_iam_binding" "sample_iam_binding" {
+    project = "PROJECT_ID"
+    role    = "roles/viewer"
+
+    members = [
+        "user:EMAIL_ADDRESS"
+    ]
+    }
+5. Initialize Terraform and generate a Terraform plan using the following:
+   - terraform init
+6. Export the Terraform plan, if asked, click Authorize when prompted:
+   - terraform plan -out=test.tfplan
+7. Convert the Terraform plan to JSON:
+   - terraform show -json ./test.tfplan > ./tfplan.json
+8. Install the terraform-tools component:
+   - sudo apt-get install google-cloud-sdk-terraform-tools
+9. Enter the following command to validate that your Terraform plan complies with your policies:
+   - gcloud beta terraform vet tfplan.json --policy-library=. --format=json
+
+* link to refer
+   - https://cloud.google.com/docs/terraform/policy-validation/quickstart
+   
+
